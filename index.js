@@ -27,7 +27,7 @@ var flatten = require('lodash.flatten');
  * @param {function} fn
  * @return {array}
  */
-function replaceString(str, match, fn) {
+function replaceString(str, match, fn, mapIndex) {
   var curCharStart = 0;
   var curCharLen = 0;
 
@@ -49,7 +49,8 @@ function replaceString(str, match, fn) {
   for (var i = 1, length = result.length; i < length; i += 2) {
     curCharLen = result[i].length;
     curCharStart += result[i - 1].length;
-    result[i] = fn(result[i], i, curCharStart);
+    const key = `${mapIndex}-${i}`
+    result[i] = fn(result[i], i, curCharStart, key);
     curCharStart += curCharLen;
   }
 
@@ -59,7 +60,7 @@ function replaceString(str, match, fn) {
 module.exports = function reactStringReplace(source, match, fn) {
   if (!Array.isArray(source)) source = [source];
 
-  return flatten(source.map(function(x) {
-    return isString(x) ? replaceString(x, match, fn) : x;
+  return flatten(source.map(function(x, index) {
+    return isString(x) ? replaceString(x, match, fn, index) : x;
   }));
 };
